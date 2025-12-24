@@ -76,8 +76,18 @@ parse_args() {
         esac
     done
 
-    [[ "$cluster_name" == "" ]] && { echo "Must define a cluster name" ; exit -1 ;  }
-    [[ "$ssh_user" == "" ]] && { echo "Must define an SSH user (-u | --user)" ; exit -1 ;  }
+    # 1. Check if the cluster name is provided
+    [[ "$cluster_name" == "" ]] && { echo "Error: Must define a cluster name" ; exit -1 ;  }
+
+    # 2. Check if the user arg is empty
+    [[ "$ssh_user" == "" ]] && { echo "Error: Must define an SSH user (-u | --user)" ; exit -1 ;  }
+
+    # 3. Block "ubuntu" specifically
+    if [[ "${ssh_user,,}" == "ubuntu" ]]; then
+        echo -e "${RED}Error: The user 'ubuntu' is restricted.${NC}"
+        echo "Please provide a specific user (e.g., -u your_username)."
+        exit -1
+    fi
 
 
 }
