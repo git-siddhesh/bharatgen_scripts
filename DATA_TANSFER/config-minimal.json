@@ -1,0 +1,15 @@
+{
+    "s3": {
+        "bucket": "17b-moe",
+        "username": "siddhesh",
+        "source_server": "yotta"
+    },
+    "transfer": {
+        "ommitted_data_path": "/projects/data",
+        "sources": [
+            "/projects/data/siddhesh/AWS_S3_DATA_TRANSFER"
+        ],
+        "checksum_enabled": true,
+        "compute_size": true
+    }
+}
