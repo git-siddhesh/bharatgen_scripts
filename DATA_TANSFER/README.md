@@ -117,7 +117,225 @@ docker run --rm -v /projects/data/siddhesh/AGRI_FORM:/mnt   --user root   alpine
 ```
 
 
-docker run --rm -it --network host --dns 8.8.8.8 \
-  -v /projects/data:/projects/data \
-  -v $PWD/config-v6.json:/app/custom_config.json \
-  s3-transfer-cli:v6
+# ✅ **All supported config flags (explained)**
+
+## 🟦 `s3` section
+
+Settings related to the S3 upload target.
+
+* **`bucket` (required)**
+  Name of target S3 bucket
+
+  ```
+  "17b-moe"
+  ```
+
+* **`username` (optional, default = "ADMIN")**
+  Used in S3 path prefix
+
+  Destination path becomes
+
+  ```
+  s3://<bucket>/<username>/<bucket_root>/<relative_path>
+  ```
+
+* **`source_server` (optional)**
+  Used as `bucket_root`
+
+  Special case:
+
+  * `"yotta"` → converted to `"v1"`
+
+  Examples:
+
+  ```
+  "yotta"
+  "neysa"
+  "custom-root"
+  ```
+
+* **`bucket_root_existing` (optional, default = false)**
+  If `true`, script verifies destination root exists in S3
+  Prevents uploads to non-existent prefix
+
+  ```
+  true | false
+  ```
+
+---
+
+## 🟧 `transfer` section
+
+Controls **what and how** files upload.
+
+* **`ommitted_data_path` (optional)**
+  Base path used to compute the relative S3 key
+  Defaults to first existing path from:
+
+  ```
+  /projects/data
+  /nfs
+  /weka
+  /home
+  ```
+
+* **`sources` (required)**
+  List of folders/files to upload
+  Can mix files & directories
+
+* **`max_parallel_jobs` (optional, default = 32)**
+  Max concurrent upload workers
+
+* **`progress_frequency` (optional, default = 15)**
+  AWS CLI progress update frequency (seconds)
+
+* **`is_cp_recursive_only_transfer_mode` (optional, default = false)**
+  Mode select:
+
+  * `false` → uses `aws s3 sync`
+  * `true` → uses `aws s3 cp --recursive`
+
+* **`checksum_enabled` (optional, default = true)**
+  Enable CRC32C checksum validation
+
+* **`compute_size` (optional, default = true)**
+  If `true` → calls `du -sb` to compute size
+  (use `false` for multi-TB jobs to avoid cost)
+
+* **`du_depth` (optional, default = 1)**
+  Depth of directory walk (for metrics only)
+
+---
+
+## 🟨 `aws` (optional)
+
+Only **region** is read
+
+* **`region` (default = ap-south-1)**
+
+AWS keys are taken from **env**, not config.
+
+---
+
+# 📌 **Path logic reminder**
+
+Your upload path becomes:
+
+```
+s3://<bucket>/<username>/<bucket_root>/<relative_path_under_ommitted_data_path>
+```
+
+Example:
+
+```
+bucket = 17b-moe
+username = siddhesh
+source_server = yotta  → becomes v1
+file = /projects/data/siddhesh/A/file.txt
+ommitted_data_path = /projects/data
+```
+
+Upload path:
+
+```
+s3://17b-moe/siddhesh/v1/siddhesh/A/file.txt
+```
+
+---
+
+# 🟢 **Minimal config (already correct)**
+
+```json
+{
+  "s3": {
+    "bucket": "17b-moe",
+    "username": "siddhesh",
+    "source_server": "yotta"
+  },
+  "transfer": {
+    "ommitted_data_path": "/projects/data",
+    "sources": [
+      "/projects/data/siddhesh/AWS_S3_DATA_TRANSFER"
+    ],
+    "checksum_enabled": true,
+    "compute_size": true
+  }
+}
+```
+
+---
+
+# 🟣 **Maximal config.json (all fields included)**
+
+```json
+{
+  "aws": {
+    "region": "ap-south-1"
+  },
+  "s3": {
+    "bucket": "17b-moe",
+    "username": "siddhesh",
+    "source_server": "yotta",
+    "bucket_root_existing": false
+  },
+  "transfer": {
+    "ommitted_data_path": "/projects/data",
+
+    "sources": [
+      "/projects/data/siddhesh/AWS_S3_DATA_TRANSFER",
+      "/projects/data/siddhesh/another_dataset",
+      "/projects/data/siddhesh/file.txt"
+    ],
+
+    "max_parallel_jobs": 32,
+    "progress_frequency": 15,
+
+    "is_cp_recursive_only_transfer_mode": false,
+
+    "checksum_enabled": true,
+
+    "compute_size": true,
+
+    "du_depth": 1
+  }
+}
+```
+
+---
+
+# 🧠 **Defaults (if missing)**
+
+| Field                                       | Default                                             |
+| ------------------------------------------- | --------------------------------------------------- |
+| aws.region                                  | ap-south-1                                          |
+| s3.username                                 | ADMIN                                               |
+| s3.bucket_root_existing                     | false                                               |
+| transfer.max_parallel_jobs                  | 32                                                  |
+| transfer.progress_frequency                 | 15                                                  |
+| transfer.is_cp_recursive_only_transfer_mode | false                                               |
+| transfer.checksum_enabled                   | true                                                |
+| transfer.compute_size                       | true                                                |
+| transfer.du_depth                           | 1                                                   |
+| ommitted_data_path                          | first existing of `/projects/data /nfs /weka /home` |
+
+---
+
+# 🟩 **Recommended Real-World Settings**
+
+### Small uploads (< 1 TB)
+
+```
+checksum_enabled = true
+compute_size = true
+```
+
+### Huge uploads (multi-TB)
+
+```
+checksum_enabled = true
+compute_size = false
+```
+
+
+
+
