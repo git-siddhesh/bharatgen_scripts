@@ -1,0 +1,31 @@
+{
+  "aws": {
+    "region": "ap-south-1"
+  },
+  "s3": {
+    "bucket": "17b-moe",
+    "username": "siddhesh",
+    "source_server": "yotta",
+    "bucket_root_existing": false
+  },
+  "transfer": {
+    "ommitted_data_path": "/projects/data",
+
+    "sources": [
+      "/projects/data/siddhesh/AWS_S3_DATA_TRANSFER",
+      "/projects/data/siddhesh/another_dataset",
+      "/projects/data/siddhesh/file.txt"
+    ],
+
+    "max_parallel_jobs": 32,
+    "progress_frequency": 15,
+
+    "is_cp_recursive_only_transfer_mode": false,
+
+    "checksum_enabled": true,
+
+    "compute_size": true,
+
+    "du_depth": 1
+  }
+}
