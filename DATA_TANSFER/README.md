@@ -17,7 +17,7 @@ Verify the build:
 - Transfer data in structure directory structure 
 	
 ```
-<bucket-name>/username/<yotta/neysa>/<coping folder>
+<bucket-name>/username/<yotta or neysa>/<coping folder>
 ```
 
 
@@ -34,6 +34,11 @@ docker images:
 `config-siddhesh.json`
 ```
 {
+    "aws": {
+        "access_key_id": "",
+        "secret_access_key": "",
+        "region": "ap-south-1"
+    },
     "s3": {
         "bucket": "17b-moe",
         "username": "siddhesh",
@@ -42,8 +47,7 @@ docker images:
     "transfer": {
         "ommitted_data_path": "/projects/data",
         "sources": [
-            "/projects/data/siddhesh/S3_TRANSFER_CLI/results",
-            "/projects/data/siddhesh/S3_TRANSFER_CLI/results copy"
+            "/projects/data/siddhesh/AWS_S3_DATA_TRANSFER"
         ],
         "checksum_enabled": true,
         "compute_size": true
@@ -52,38 +56,34 @@ docker images:
 ```
 
 
-# Buckets: 
-## Mounted Buckets: 
+## Buckets: 
+### Mounted Buckets: 
 - 17b-moe 
 - bg-speech-data 
 
-## Team specific buckets: 
+### Team specific buckets: 
 - bgen-data-team 
 - bgen-posttraining-team 
 - bgen-pretraining-team 
 - bgen-vision-team
 
-# Source_server:
+## Source_server:
 - yotta
 - neysa
 
-# Ommitted_data_path:
+## Ommitted_data_path:
+> The folders or files will be copied after the ommitted path
 - /projects/data
 - /weka
 - /nfs
 - /home
 
-# Compute_size: 
+## Compute_size: 
+> If the transfer request is large [in TBs], set `false`
 - `true`: if transfer data is small 
 - `false`: if transfer data in huge [in multi-TBs]
 
-
-# Run command: 
-```
-docker run -dit --network host --dns 8.8.8.8 -v $PWD:/app -v /projects/data:/projects/data s3-transfer-cli:v6 config-siddhesh.json
-```
-
-
+# Docker run 
 ## Optional args:
 - --network
 - --dns 
@@ -98,10 +98,34 @@ docker run -dit --network host --dns 8.8.8.8 -v $PWD:/app -v /projects/data:/pro
 /nfs:/nfs
 ```
 
-## Note: 
+## Config file: 
 > Config file name: config file should in pwd
 
 
+## Run command: 
+Points to be verified before running below command
+- Confirm if `config json` exists in you PWD or not
+- Check the mount path in your server [`/projects/data`, `/weka`, `home`, `nfs`]
+- Keep both the mount path same [docker local and system]
+- Check the image and version in your system `docker images` or `sudo docker images`
+  
+## Examples
+```
+docker run -dit --network host --dns 8.8.8.8 -v $PWD:/app -v /projects/data:/projects/data s3-transfer-cli:v6 config.json
+```
+```
+docker run -dit --network host --dns 8.8.8.8 -v $PWD:/app -v /nfs:/nfs s3-transfer-cli:v6 config-siddhesh.json
+```
+```
+docker run -dit --network host --dns 8.8.8.8 -v $PWD:/app -v /home:/home s3-transfer-cli:v6 config.json
+```
+
+## Logs:
+```
+docker logs <container-id>
+```
+
+---
 
 
 # Delete the root accessed folders and files
