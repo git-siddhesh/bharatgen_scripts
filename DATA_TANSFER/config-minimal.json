@@ -1,4 +1,9 @@
 {
+    "aws": {
+        "access_key_id": "",
+        "secret_access_key": "",
+        "region": "ap-south-1"
+    },
     "s3": {
         "bucket": "17b-moe",
         "username": "siddhesh",
