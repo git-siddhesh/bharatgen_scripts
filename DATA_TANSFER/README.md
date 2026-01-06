@@ -29,6 +29,8 @@ docker images:
  s3-transfer-cli     v6                 7426023d5782   5 minutes ago       310MB
 ```
 
+# Don't have aws access key?
+[Get My Access Key](https://github.com/git-siddhesh/bharatgen_scripts/blob/main/DATA_TANSFER/GetMyAccessKey.md)
 
 # Create a config file 
 `config-siddhesh.json`
