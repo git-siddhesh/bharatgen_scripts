@@ -135,8 +135,8 @@ ENV LAUNCHER_SCRIPTS_PATH=/opt/NeMo-Framework-Launcher/launcher_scripts
 ENV PYTHONPATH=/opt/NeMo-Framework-Launcher/launcher_scripts:${PYTHONPATH}
 
 ###################### fix for step time increses  
-COPY 3LB2wO6 ./ofi-nccl-fix.deb
-RUN dpkg -i ./ofi-nccl-fix.deb || apt-get install -f -y
+COPY ofi-nccl-fix.deb /tmp/ofi-nccl-fix.deb
+RUN dpkg -i /tmp/ofi-nccl-fix.deb || apt-get install -f -y
 ###################### 
 # FINAL: enforce venv Python
 ######################
