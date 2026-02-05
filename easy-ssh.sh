@@ -16,6 +16,7 @@ declare -a HELP=(
 cluster_name=""
 node_group="login-group"
 pubkey=""
+POSITIONAL=()
 
 
 #ssh_user="ubuntu"
@@ -74,12 +75,17 @@ parse_args() {
             pubkey="$2"
             shift 2
             ;;
+        # *)
+        #     [[ "$cluster_name" == "" ]] \
+        #         && cluster_name="$key" \
+        #         || { echo "Must define one cluster name only" ; exit -1 ;  }
+        #     shift
+        #     ;;
         *)
-            [[ "$cluster_name" == "" ]] \
-                && cluster_name="$key" \
-                || { echo "Must define one cluster name only" ; exit -1 ;  }
+            POSITIONAL+=("$1")
             shift
             ;;
+
         esac
     done
 
@@ -187,6 +193,13 @@ add_keypair_to_cluster() {
 }
 
 parse_args $@
+# Exactly one positional argument is required: CLUSTER_NAME
+if [[ ${#POSITIONAL[@]} -ne 1 ]]; then
+    echo "Error: Must define exactly one cluster name"
+    exit 1
+fi
+
+cluster_name="${POSITIONAL[0]}"
 
 #===Style Definitions===
 GREEN='\033[0;32m'
