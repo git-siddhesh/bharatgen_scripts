@@ -14,7 +14,10 @@ declare -a HELP=(
 )
 
 cluster_name=""
-node_group="controller-machine"
+node_group="login-group"
+pubkey=""
+
+
 #ssh_user="ubuntu"
 ssh_user=""
 declare -a aws_cli_args=()
@@ -67,6 +70,10 @@ parse_args() {
             DRY_RUN=1
             shift
             ;;
+        -k|--pubkey)
+            pubkey="$2"
+            shift 2
+            ;;
         *)
             [[ "$cluster_name" == "" ]] \
                 && cluster_name="$key" \
@@ -85,10 +92,9 @@ parse_args() {
     # 3. Block "ubuntu" specifically
     if [[ "${ssh_user,,}" == "ubuntu" ]]; then
         echo -e "${RED}Error: The user 'ubuntu' is restricted.${NC}"
-        echo "Please provide a specific user (e.g., -u your_username)."
+        echo "Please provide a specific user (e.g., -u user.name). without `@tihiitb.org`"
         exit -1
     fi
-
 
 }
 
@@ -134,7 +140,19 @@ escape_spaces() {
 
 # Function to add the user's SSH public key to the cluster
 add_keypair_to_cluster() {
-    PUBLIC_KEY=$(cat ~/.ssh/id_rsa.pub)
+
+    if [[ -n "$pubkey" ]]; then
+        PUBLIC_KEY="$pubkey"
+        echo "Adding $PUBLIC_KEY to the server"
+
+    elif [[ -f ~/.ssh/id_rsa.pub ]]; then
+        PUBLIC_KEY=$(cat ~/.ssh/id_rsa.pub)
+        echo "Adding $PUBLIC_KEY to the server"
+    else
+        echo -e "${YELLOW}No public key provided and ~/.ssh/id_rsa.pub not found — skipping key installation${NC}"
+        return
+    fi
+
     
     # Determine the authorized_keys path based on user and filesystem
     # Check if OpenZFS is mounted (home directory would be /home/username)
