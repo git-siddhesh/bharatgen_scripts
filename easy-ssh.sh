@@ -90,7 +90,7 @@ parse_args() {
     done
 
     # 1. Check if the cluster name is provided
-    [[ "$cluster_name" == "" ]] && { echo "Error: Must define a cluster name" ; exit -1 ;  }
+    # [[ "$cluster_name" == "" ]] && { echo "Error: Must define a cluster name" ; exit -1 ;  }
 
     # 2. Check if the user arg is empty
     [[ "$ssh_user" == "" ]] && { echo "Error: Must define an SSH user (-u | --user)" ; exit -1 ;  }
